@@ -1,3 +1,9 @@
+datefudge (1.25) unstable; urgency=medium
+
+  [ Vedran Vidović ]
+  * Added option to read date-time from a file - this enables us to change
+    date & time during a lifetime of some long-running process.
+
 datefudge (1.24) unstable; urgency=medium
 
   [ Debian Janitor ]
