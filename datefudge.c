@@ -27,8 +27,11 @@ static bool dostatic = false;
 static bool fudge_set = false;
 static char * fudge_file_path = 0;
 static time_t fudge_file_mtime = 0;
-static time_t fudge_file_checked_time = 0;
+static struct timeval fudge_file_checked_tv = (struct timeval){0};
+static struct timeval fudge_file_cache_tv = (struct timeval){0};
+
 time_t real_time(time_t *x);
+time_t real_gettimeofday(struct timeval *x, void *y);
 
 static void init_fudge (void) {
     dostatic = getenv("DATEFUDGE_DOSTATIC") != NULL;
@@ -47,6 +50,11 @@ static void init_fudge (void) {
     // dynamically during a life of process.
     fudge_file_path = getenv("DATEFUDGE_FILE");
     if(fudge_file_path != NULL) {
+        // Convert number of milliseconds to timeval struct (secs & microsecs).
+        long fudge_file_cache_ms = atoi(getenv("DATEFUDGE_FILE_CACHE_MS"));
+        fudge_file_cache_tv.tv_sec = fudge_file_cache_ms / 1000;
+        fudge_file_cache_tv.tv_usec = (fudge_file_cache_ms % 1000) * 1000;
+
         fudge_from_file = true;
         char * datetime_str = 0;
         long length;
@@ -84,12 +92,14 @@ static bool is_fudge_set() {
     if(!fudge_from_file) {
         return fudge_set;
     }
-    time_t current_time;
-    real_time(&current_time);
-    // Since times used here are at 1 sec resolution don't check if value is
-    // changed more than once in a second.
-    if(current_time - fudge_file_checked_time > 1) {
-        fudge_file_checked_time = current_time;
+    struct timeval current_tv;
+    struct timeval diff_tv;
+    real_gettimeofday(&current_tv, NULL);
+    timersub(&current_tv, &fudge_file_checked_tv, &diff_tv);
+    // Don't check if time is changed more than predefined cache time.
+    if(diff_tv.tv_sec > fudge_file_cache_tv.tv_sec
+      || (diff_tv.tv_sec == fudge_file_cache_tv.tv_sec && diff_tv.tv_usec > fudge_file_cache_tv.tv_usec)) {
+        fudge_file_checked_tv = current_tv;
         struct stat attrib;
         stat(fudge_file_path, &attrib);
         if(fudge_file_mtime != attrib.st_mtime) {
@@ -113,7 +123,7 @@ static void set_fudge(time_t *seconds) {
         *seconds -= fudge;
 }
 
-// Proxy to libc time function, setting/returning "real" time.
+// Proxy to libc time function, setting/returning the "real" time.
 time_t real_time(time_t *x) {
     static time_t (*libc_time)(time_t *) = NULL;
 
@@ -131,13 +141,19 @@ time_t time(time_t *x) {
     return res;
 }
 
-int __gettimeofday(struct timeval *x, void *y) {
+// Proxy to libc __gettimeofday function, setting/returning the "real" time.
+time_t real_gettimeofday(struct timeval *x, void *y) {
     static int (*libc_gettimeofday)(struct timeval *, void *) = NULL;
-    int res;
 
     if(!libc_gettimeofday)
-        libc_gettimeofday = (typeof(libc_gettimeofday))dlsym (RTLD_NEXT, __func__);
-    res = (*libc_gettimeofday)(x,y);
+        libc_gettimeofday = (typeof(libc_gettimeofday))dlsym (RTLD_NEXT, "__gettimeofday");
+    return libc_gettimeofday(x, y);
+}
+
+int __gettimeofday(struct timeval *x, void *y) {
+    int res;
+
+    res = real_gettimeofday(x,y);
     if(res) return res;
     set_fudge(&x->tv_sec);
     return 0;

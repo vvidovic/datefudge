@@ -5,6 +5,7 @@
 dat=""
 static=0
 date_file_path=""
+date_file_cache_ms="100"
 ld_preload_arg=""
 
 usage()
@@ -14,11 +15,14 @@ usage()
     echo "$0: $1"
     echo
   fi
-  echo "Usage: $0 [-s|--static] [-l|--add-ld-preload lib] [-f|--from-file date_file_path] [date] program args..."
+  echo "Usage: $0 [-s|--static] [-l|--add-ld-preload lib] [-f|--from-file date_file_path] [-c|--cache-file-date ms] [date] program args..."
   echo
   echo "Run 'program' with 'args'."
   echo "The program will believe that the current time is 'date'"
   echo "or full date-time set in date_file_path (yyyy-MM-dd HH:mm:ss)."
+  echo
+  echo "When reading date/time from file, file is checked for updates at most"
+  echo "each 100 milliseconds (this value can be overriden by param 'ms')."
   echo
   [ "$1" ] && exit 1 || exit 0
 }
@@ -36,6 +40,11 @@ while [ "$1" ] && [ -z "$dat" ]; do
     -f|--from-file)
       [ "$2" ] || usage "Missing argument for the '$1' option"
       date_file_path="$2"
+      shift;
+      ;;
+    -c|--cache-file-date)
+      [ "$2" ] || usage "Missing argument for the '$1' option"
+      date_file_cache_ms="$2"
       shift;
       ;;
     -v|--version)
@@ -118,6 +127,7 @@ set_datefudge_vars()
 
   if [ -n "$date_file_path" ]; then
     export DATEFUDGE_FILE=$date_file_path
+    export DATEFUDGE_FILE_CACHE_MS=$date_file_cache_ms
     unset  DATEFUDGE
   fi
 }

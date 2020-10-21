@@ -4,7 +4,7 @@
 datefudge \- pretend the system time is different
 .SH SYNOPSIS
 \fBdatefudge\fR [\fB\-s\fR|\fB\-\-static\fR] [\fB\-l\fR|\fB\-\-add\-ld\-preload\fR \fIlib\fR]
-[\fB\-f\fR|\fB\-\-from-file\fR \fIdate_file_path\fR] [\fIdate\fR] program\fR [\fIarguments\fR ...]
+[\fB\-f\fR|\fB\-\-from\-file\fR \fIdate_file_path\fR] [\fB\-c\fR|\fB\-\-cache\-file\-date\fR \fIms\fR] [\fIdate\fR] program\fR [\fIarguments\fR ...]
 .SH DESCRIPTION
 .PP
 \fBdatefudge\fR is a small utility that pretends that the system time is different
@@ -16,6 +16,8 @@ program, for example "2007\-04\-01 12:21" or "yesterday", or "next Friday".
 .PP
 The date passed to program inside \fIdate_file_path\fP currently only supports
 full date-time string to the seconds level, for example "2007\-04\-01 12:21:12".
+File is checked for updates at most each 100 milliseconds (this value can be
+overriden by arg 'ms').
 .SH OPTIONS
 .TP
 \fB\-\-static\fR, \fB\-s\fR
