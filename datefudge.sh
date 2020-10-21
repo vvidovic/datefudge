@@ -4,6 +4,7 @@
 
 dat=""
 static=0
+date_file_path=""
 ld_preload_arg=""
 
 usage()
@@ -13,10 +14,11 @@ usage()
     echo "$0: $1"
     echo
   fi
-  echo "Usage: $0 [-s|--static] [-l|--add-ld-preload lib] date program args..."
+  echo "Usage: $0 [-s|--static] [-l|--add-ld-preload lib] [-f|--from-file date_file_path] [date] program args..."
   echo
   echo "Run 'program' with 'args'."
-  echo "The program will believe that the current time is 'date'."
+  echo "The program will believe that the current time is 'date'"
+  echo "or full date-time set in date_file_path (yyyy-MM-dd HH:mm:ss)."
   echo
   [ "$1" ] && exit 1 || exit 0
 }
@@ -29,6 +31,11 @@ while [ "$1" ] && [ -z "$dat" ]; do
     -l|--add-ld-preload)
       [ "$2" ] || usage "Missing argument for the '$1' option"
       ld_preload_arg="$2"
+      shift;
+      ;;
+    -f|--from-file)
+      [ "$2" ] || usage "Missing argument for the '$1' option"
+      date_file_path="$2"
       shift;
       ;;
     -v|--version)
@@ -44,23 +51,33 @@ while [ "$1" ] && [ -z "$dat" ]; do
       usage "Invalid option '$1'"
       ;;
     *)
-      [ "$2" ] || usage "Missing 'program' argument"
-      dat="$1"
+      # If we have date file path param we expect only the program param
+      # otherwise we expect the date param & the program param.
+      if [ -z "$date_file_path" ]; then
+        [ "$2" ] || usage "Missing 'program' argument"
+        dat="$1"
+      else
+        [ "$1" ] || usage "Missing 'program' argument"
+        break
+      fi
       ;;
   esac
   shift
 done
 
-[ "$dat" ] || usage "Missing 'date' argument"
+# One of params must be set: date or date_file_path
+if [ -n "$dat" ]; then
+  # Assume that 'date' already printed an error message
+  sec1=$(date -d "$dat" '+%s')
+  [ $? -eq 0 ] || exit 1
 
-# Assume that 'date' already printed an error message
-sec1=$(date -d "$dat" '+%s')
-[ $? -eq 0 ] || exit 1
-
-sec2=$(expr $(date '+%s') - $sec1)
-# According to its documentation expr returns exit status 1,
-# when the expression evaluates to 0
-[ $? -le 1 ] || exit 1
+  sec2=$(expr $(date '+%s') - $sec1)
+  # According to its documentation expr returns exit status 1,
+  # when the expression evaluates to 0
+  [ $? -le 1 ] || exit 1
+elif [ -z "$date_file_path" ]; then
+  usage "Missing 'date' or 'date_file_path' argument"
+fi
 
 add_ld_preload()
 {
@@ -97,6 +114,11 @@ set_datefudge_vars()
   else
     export DATEFUDGE=$sec2
     unset  DATEFUDGE_DOSTATIC
+  fi
+
+  if [ -n "$date_file_path" ]; then
+    export DATEFUDGE_FILE=$date_file_path
+    unset  DATEFUDGE
   fi
 }
 
