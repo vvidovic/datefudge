@@ -1,0 +1,89 @@
+.\" vim:ft=nroff
+.TH DATEFUDGE "1" "August 1th, 2019" "datefudge @VERSION@" Debian
+.SH NAME
+datefudge \- pretend the system time is different
+.SH SYNOPSIS
+\fBdatefudge\fR [\fB\-s\fR|\fB\-\-static\fR] [\fB\-l\fR|\fB\-\-add\-ld\-preload\fR \fIlib\fR]
+\fIat_date program\fR [\fIarguments\fR ...]
+.SH DESCRIPTION
+.PP
+\fBdatefudge\fR is a small utility that pretends that the system time is different
+by pre-loading a small library which modifies the
+\fBtime\fR(2), \fBgettimeofday\fR(2) and \fBclock_gettime\fR(2) system calls.
+.SH DATE FORMAT
+The \fIat_date\fP argument can be given in any format accepted by the \fBdate\fP(1)
+program, for example "2007\-04\-01 12:21" or "yesterday", or "next Friday".
+.SH OPTIONS
+.TP
+\fB\-\-static\fR, \fB\-s\fR
+Mark the date as a `static' one.  The above mentioned system calls will always return
+the date given in the \fIat_date\fP argument, regardless of time passing.  See EXAMPLES
+below.
+.TP
+\fB\-\-add\-ld\-preload\fR \fIlib\fR, \fB\-l\fR \fIlib\fR
+Prepend \fIlib\fR to \fILD_PRELOAD\fR environment variable before executing given
+\fIprogram\fR.  This option might be useful for example to inject sanitizer
+libraries (e.g. from Address Sanitizer) to the list of preloaded libraries before the
+internal \fBdatefudge\fR's library.  See EXAMPLES below.
+.TP
+\fB\-\-help\fR, \fB\-h\fR
+Print short usage information and exit.
+.TP
+\fB\-\-version\fR, \fB\-v\fR
+Print version information and exit.
+.SH EXAMPLES
+.SS Basic examples:
+.nf
+\fI$ datefudge "2007\-04\-01 10:23" date \-R\fR
+Sun, 01 Apr 2007 10:23:00 +0200
+
+\fI$ datefudge "1 May 2007" date \-R\fR
+Tue, 01 May 2007 00:00:00 +0200
+
+\fI$ datefudge "2 weeks ago" date \-R\fR
+Wed, 16 Jan 2008 13:32:12 +0100
+.fi
+.SS Non-static vs. static example:
+.nf
+\fI$ datefudge "2007\-04\-01 10:23" sh \-c "\fBsleep 3\fI; date \-R"\fR
+Sun, 01 Apr 2007 10:23:\fB03\fR +0200
+
+\fI$ datefudge \fB\-\-static\fI "2007\-04\-01 10:23" sh \-c "\fBsleep 3\fI; date \-R"\fR
+Sun, 01 Apr 2007 10:23:\fB00\fR +0200
+.fi
+.SS Prepending LD_PRELOAD example:
+.nf
+\fI$ datefudge \fB\-\-add\-ld\-preload /path/to/libclang_rt.asan\-x86_64.so\fI "2007\-04\-01 10:23" command\fR
+
+If the \fIcommand\fR was compiled by 'clang \-fsanitize=address \-shared\-libasan', then the above
+command might display some errors, for example:
+
+==7625==ERROR: AddressSanitizer: heap\-use\-after\-free on address 0x614000000044 at pc ....
+
+Without the \fB\-\-add\-ld\-preload\fR argument, this would not work at all.
+.fi
+.SH AUTHOR
+Written by Matthias Urlichs <smurf@noris.de>.  Modified by
+Robert Luberda <robert@debian.org>.
+.SH BUGS
+There is no attempt to make this change undetectable by the program.
+In particular, file modification times are \fBnot\fR modified.
+.PP
+On systems using 32-bit representation of time, \fBdatefudge\fR is affected by the year
+2038 problem, which might cause dates to be wrapped around, for instance:
+.nf
+\fI$ TZ=UTC datefudge "\fB2038\fR\fI\-01\-19 03:14:07" sh \-c "sleep 1; date \-R"\fR
+Fri Dec 13 20:45:53 UTC \fB1901\fR
+.fi
+.SH COPYRIGHT
+Copyright \(co 2003 by Matthias Urlichs.
+.br
+Copyright \(co 2008-2019 by Robert Luberda.
+.PP
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  You may redistribute copies of datefudge under the
+terms of the GNU General Public License.
+.br
+For more information about these matters, see the file named COPYING.
+.SH "SEE ALSO"
+\fBdate\fR(1), \fBld.so\fR(1), \fBtime\fR(2), \fBgettimeofday\fR(2), \fBclock_gettime\fR(2)

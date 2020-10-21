@@ -1,0 +1,240 @@
+datefudge (1.24) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Update standards version to 4.4.1, no changes needed.
+  * Set debhelper-compat version in Build-Depends.
+  * Fix day-of-week for changelog entries 1.12, 1.11, 1.10, 1.9, 1.8,
+    1.7, 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0.
+
+  [ Robert Luberda ]
+  * Fix FTBFS on hurd-i386: Necessary functions disabled (closes: #945599).
+    Thanks to Paul Sonnenschein for the patch.
+  * Fix FTBFS with glibc 2.31 (conflicting gettimeofday prototype) (closes:
+    #964227). Thanks to Aurelien Jarno for the patch.
+  * Bump debhelper's compact level to 13.
+  * Standards-Version: 4.5.0.
+
+ -- Robert Luberda <robert@debian.org>  Tue, 14 Jul 2020 11:11:48 +0200
+
+datefudge (1.23) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+
+  [ Robert Luberda ]
+  * Makefile: No longer require root privileges for installation;
+    set `Rules-Requires-Root' to `no' in debian/control.
+  * Build with debhelper v12.
+  * datefudge.sh: introduce '--add-ld-preload|-l arg' option to prepend
+    given arg to LD_LPRELOAD variable, what might be useful for Address
+    Sanitizer and other santizers (closes: #873577).
+  * datefudge.man: document the above option.
+  * Add simple tests for autopkgtest.
+  * Standards-Version: 4.4.0.
+
+ -- Robert Luberda <robert@debian.org>  Fri, 02 Aug 2019 20:09:51 +0200
+
+datefudge (1.22) unstable; urgency=medium
+
+  * datefudge.c: Apply the following fixes from Thorsten Glaser
+    (closes: #853724):
+    + Operate more efficiently, especially if fudging to the epoch.
+    + Fix running on 32-bit systems with 64-bit time_t (such as x32).
+  * datefudge.man: Document that datefudge might be affected by the
+    Y2K38 problem on some systems.
+  * Use https in Vcs-Git and switch Vcs-Browser to cgit.
+  * Standards-Version: 3.9.6 (no changes).
+
+ -- Robert Luberda <robert@debian.org>  Sat, 04 Feb 2017 22:59:11 +0100
+
+datefudge (1.21) unstable; urgency=medium
+
+  * datefudge.sh: don't fail when its date argument happens to be equal
+    to the current time (i.e. make `datefudge now some_command' work).
+  * Enable all hardening options in debian/rules.
+  * Update man page to mention that the date can be given in any format
+    accepted by date(1) command.
+  * Switch debian/copyright to the DEP-5 format.
+  * Use https in Vcs-Browser field (lintian).
+  * Standards-Version: 3.9.6 (no changes).
+
+ -- Robert Luberda <robert@debian.org>  Sat, 13 Feb 2016 15:19:41 +0100
+
+datefudge (1.20) unstable; urgency=medium
+
+  * datefudge.c: don't override time(2) on GNU/Hurd, as it seems to
+    internally call gettimeofday(2), which is overridden. This fixes
+    FTBFS on that platform.
+
+ -- Robert Luberda <robert@debian.org>  Mon, 16 Dec 2013 23:32:47 +0100
+
+datefudge (1.19) unstable; urgency=medium
+
+  * Use `*-*' as multi-arch pattern to make sure the datefudge script is the
+    same on all architectures, including 'hurd-i386' (closes: #730766).
+  * Install datefudge.so into /usr/lib<arch>/datefudge instead of using
+    an extra private dir /usr/lib/datefudge/<arch> (closes: #711892).
+  * Cleanup makefiles a bit and add support for cross-compiling.
+  * Standards-Version: 3.9.5 (no changes).
+
+ -- Robert Luberda <robert@debian.org>  Sat, 14 Dec 2013 21:06:22 +0100
+
+datefudge (1.18) unstable; urgency=low
+
+  * Introduce multi-arch support which allows one to use datefudge with 32-bit
+    commands on 64-bit system (providing that both 32-bit and 64-bit versions
+    of this package are installed on system) (LP: #1103281):
+    + install datefudge.so library into /usr/lib/datefudge/<arch-tripplet>;
+    + add each /u/l/d/<arch-tripplet> to LD_LIBRARY_PATH in datefudge scipt;
+    + mark binary package as `Multi-Arch: same'.
+  * Use debhelper v9.
+  * debian/control:
+    + fix Vcs-Browser field;
+    + Standards-Version: 3.9.4 (no changes).
+
+ -- Robert Luberda <robert@debian.org>  Sat, 11 May 2013 19:02:11 +0200
+
+datefudge (1.17) unstable; urgency=low
+
+  * datefudge.{c,man}: Add the `--static' option for static dates.
+  * debian/control:
+    + Standards-Version: 3.9.2 (no changes);
+    + add VCS fields.
+
+ -- Robert Luberda <robert@debian.org>  Thu, 23 Jun 2011 19:38:38 +0200
+
+datefudge (1.16) unstable; urgency=low
+
+  * datefudge.c: don't override clock_gettime(2) on GNU/Hurd - it seems
+    it internally calls gettimeofday(2), which is overridden. This fixes
+    FTBFS due to test failure on that platform.
+  * Makefile: add test for `perl localtime()'.
+
+ -- Robert Luberda <robert@debian.org>  Mon, 14 Feb 2011 23:03:20 +0100
+
+datefudge (1.15) unstable; urgency=low
+
+  * Use the `3.0 (native)' source format.
+  * Switch to debhelper v8.
+  * Standards-Version: 3.9.1 (no changes).
+  * debian/rules:
+    + provide build-arch and build-indep targets;
+    + call dpkg-buildflags to set CFLAGS and LDFLAGS;
+    + simplify the file.
+  * Reword the restriction in README (closes: #416174).
+  * Update debian/copyright a bit.
+  * Makefile: add a simple test case.
+
+ -- Robert Luberda <robert@debian.org>  Sun, 13 Feb 2011 13:28:08 +0100
+
+datefudge (1.14) unstable; urgency=low
+
+  * New maintainer (closes: #429467).
+  * Standards-Version: 3.7.3 (no changes).
+  * Use debhelper v7 and its minimised rules file.
+  * datefudge.c: override clock_gettime(2) called with CLOCK_REALTIME
+    argument to make it possible to fake `date' command (closes: #416175).
+  * Update man page, add a simple example.
+
+ -- Robert Luberda <robert@debian.org>  Sat, 10 May 2008 08:21:02 +0200
+
+datefudge (1.13) unstable; urgency=low
+
+  * QA upload.
+  * Package is orphaned (#429467); set maintainer to Debian QA Group.
+  * Switch to debhelper.
+  * Move datefudge.so to /usr/lib/datefudge as it's not a public library.
+  * datefudge.c: Drop <asm/unistd.h> for portability.  Closes: #414335.
+  * Makefile: Remove datefudge.1 on clean.
+  * debian/copyright: Update FSF address.
+  * Conforms to Standards version 3.7.2.
+
+ -- Matej Vela <vela@debian.org>  Mon, 09 Jul 2007 19:10:34 +0200
+
+datefudge (1.12) unstable; urgency=low
+
+  * Updated maintainer email.
+  * Use a Lintian override to not-warn about the shared library
+    (which is not linked against, and therefore doesn't require a shlibs entry)
+  * Extended the package description
+  * added COPYING file to source tarball
+  * Updated Standards-Version to 3.6.1 (no changes)
+  * Minor build fixes
+
+ -- Matthias Urlichs <smurf@debian.org>  Sat, 13 Sep 2003 10:00:35 +0200
+
+datefudge (1.11) unstable; urgency=low
+
+  * de-debhelperization problems, part 2:
+    removed debian/files
+    use debian/shlibs => debian/tmp/DEBIAN/shlibs
+      instead of incorrectly writing the latter from debian/rules
+
+ -- Matthias Urlichs <smurf@noris.de>  Wed, 26 Mar 2003 09:48:03 +0200
+
+datefudge (1.10) unstable; urgency=low
+
+  * Fix debian complaints, part 1
+
+ -- Matthias Urlichs <smurf@noris.de>  Mon, 24 Mar 2003 21:48:00 +0200
+
+datefudge (1.9) unstable; urgency=low
+
+  * Debhelper removal and cleanup, step 2
+
+ -- Matthias Urlichs <smurf@noris.de>  Sun, 23 Mar 2003 12:50:45 +0200
+
+datefudge (1.8) unstable; urgency=low
+
+  * Ignore editor files
+
+ -- Matthias Urlichs <smurf@noris.de>  Tue, 18 Mar 2003 20:17:59 +0200
+
+datefudge (1.7) unstable; urgency=low
+
+  * Debhelper removal and cleanup, step 1
+
+ -- Matthias Urlichs <smurf@noris.de>  Tue, 18 Mar 2003 20:17:24 +0200
+
+datefudge (1.6) unstable; urgency=low
+
+  * debianized
+  * GPLized
+
+ -- Matthias Urlichs <smurf@noris.de>  Tue, 05 Nov 2002 11:15:33 +0200
+
+datefudge (1.5) unstable; urgency=low
+
+  * Added README
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 17 Oct 2002 07:29:04 +0200
+
+datefudge (1.4) unstable; urgency=low
+
+  * check-in datefudge script
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 14 Mar 2002 12:15:59 +0200
+
+datefudge (1.3) unstable; urgency=low
+
+  * initial check-in
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 14 Mar 2002 12:14:37 +0200
+
+datefudge (1.2) unstable; urgency=low
+
+  * Versionsnummern-Updateskript
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 14 Mar 2002 12:12:31 +0200
+
+datefudge (1.1) unstable; urgency=low
+
+  * Initial repository create
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 14 Mar 2002 12:12:31 +0200
+
+datefudge (1.0) unstable; urgency=low
+
+  * BitKeeper file /var/tmp/b.s.10098/ChangeSet
+
+ -- Matthias Urlichs <smurf@noris.de>  Thu, 14 Mar 2002 12:12:31 +0200

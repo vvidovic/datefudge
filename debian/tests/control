@@ -1,0 +1,23 @@
+Test-Command: a='2019-07-31 23:01:12'; b=$(datefudge "$a" date '+%F %T'); echo " >> $b"; test "$b" = "$a"
+Depends: @, coreutils
+Features: test-name=basic-check-with-date
+
+Test-Command: a='2019-07-31 23:01:12'; b=$(datefudge "$a" sh -c 'sleep 2; date "+%F %T"'); echo " >> $b"; test "$b" = '2019-07-31 23:01:14'
+Depends: @, coreutils
+Features: test-name=check-with-sleep-date
+
+Test-Command: a='2019-07-31 23:01:12'; b=$(datefudge -s "$a" sh -c 'sleep 2; date "+%F %T"'); echo " >> $b"; test "$b" = "$a"
+Depends: @, coreutils
+Features: test-name=check-static-with-sleep-date
+
+Test-Command: a='2020-02-29 01:02:03'; b=$(datefudge "$a" perl -e 'print scalar(localtime);'); echo " >> $b"; test "$b" = 'Sat Feb 29 01:02:03 2020'
+Depends: @, perl
+Features: test-name=check-with-perl-localtime
+
+Test-Command: a='now'; b=$(env -u LD_PRELOAD datefudge "$a" sh -c 'echo $LD_PRELOAD'); echo " >> $b"; test "$b" = 'datefudge.so'
+Depends: @, coreutils
+Features: test-name=check-default-ld-library-path
+
+Test-Command: a='now'; b=$(env -u LD_PRELOAD datefudge -l /dev/null "$a" sh -c 'echo $LD_PRELOAD' 2>/dev/null || :); echo " >> $b"; test "$b" = '/dev/null:datefudge.so'
+Depends: @, coreutils
+Features: test-name=check-prepending-ld-library-path

@@ -1,0 +1,25 @@
+Source: datefudge
+Section: devel
+Priority: optional
+Maintainer: Robert Luberda <robert@debian.org>
+Standards-Version: 4.5.0
+Build-Depends: debhelper-compat (= 13)
+Rules-Requires-Root: no
+Vcs-Git: https://salsa.debian.org/debian/datefudge.git
+Vcs-Browser: https://salsa.debian.org/debian/datefudge
+
+Package: datefudge
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
+Description: Fake the system date
+ This program (and preload library) fakes the system date so that
+ programs think the wall clock is ... different.
+ .
+ The faking is not complete; timestamp on files are not affected in any
+ way.
+ .
+ This package is useful if you want to test the date handling of your
+ programs without changing the system clock. Examples: Does it handle
+ expired certificates correctly? Does it work on a leap day?

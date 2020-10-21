@@ -1,0 +1,22 @@
+All files in this repository / Debian archive are (c) 2002-2003
+by Matthias Urlichs <smurf@noris.de>. They are licensed under the Gnu
+Public License, version 2, included as the file "COPYING".
+
+
+This preload library and program implements a cheap way to fake a Linux
+program into believing that the clock is set to Something Else.
+
+Usage: datefudge "2003-04-01 09:42" program [args...]
+
+I use this program to find corner cases like "will this program behave
+itself on a leap day" or "does this code handle expiry of an SSL
+certificate correctly". Manually setting the system clock isn't an
+option in many cases, especially on multiuser systems.
+
+This program is not a complete solution. It is not meant to be.
+Specifically, it does not touch the times in *stat() results. As a
+consequence, programs like "make" will be confused.
+
+DISCLAIMER: Use at your own risk. Please not used this program to disable
+restrictions in non-free software (for example, making a "30-day demo"
+version run indefinitely).
