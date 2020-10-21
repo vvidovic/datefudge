@@ -21,7 +21,7 @@ usage()
   echo "The program will believe that the current time is 'date'"
   echo "or full date-time set in date_file_path (yyyy-MM-dd HH:mm:ss)."
   echo
-  echo "When reading date/time from file, file is checked for updates at most"
+  echo "When reading date/time from a file, it is checked for updates at most"
   echo "each 100 milliseconds (this value can be overriden by param 'ms')."
   echo
   [ "$1" ] && exit 1 || exit 0
