@@ -14,8 +14,9 @@ by pre-loading a small library which modifies the
 The \fIat_date\fP argument can be given in any format accepted by the \fBdate\fP(1)
 program, for example "2007\-04\-01 12:21" or "yesterday", or "next Friday".
 .PP
-The date passed to program inside \fIdate_file_path\fP currently only supports
-full date-time string to the seconds level, for example "2007\-04\-01 12:21:12".
+The date passed to program inside \fIdate_file_path\fP supports full or partial
+date-time string to the seconds level, for example "2007\-04\-01 12:21:12",
+"2007\-04\-01 12", "2007\-04\-01" or "2007".
 File is checked for updates at most each 100 milliseconds (this value can be
 overriden by arg 'ms').
 .SH OPTIONS
@@ -48,12 +49,26 @@ Tue, 01 May 2007 00:00:00 +0200
 \fI$ datefudge "2 weeks ago" date \-R\fR
 Wed, 16 Jan 2008 13:32:12 +0100
 .fi
+
 .SS Date-time from file examples:
-Suppose a date.txt contains "2007\-04\-01 10:23:45".
+date.txt contains "2007\-04\-01 10:23:45".
 .nf
 \fI$ datefudge -f date.txt date \-R\fR
 Sun, 01 Apr 2007 10:23:45 +0200
+
 .fi
+date.txt contains "2007\-04\-01 10".
+.nf
+\fI$ datefudge -f date.txt date \-R\fR
+Sun, 01 Apr 2007 10:00:00 +0200
+
+.fi
+date.txt contains "2007\-04\-01".
+.nf
+\fI$ datefudge -f date.txt date \-R\fR
+Sun, 01 Apr 2007 00:00:00 +0200
+.fi
+
 .SS Non-static vs. static example:
 .nf
 \fI$ datefudge "2007\-04\-01 10:23" sh \-c "\fBsleep 3\fI; date \-R"\fR

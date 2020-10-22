@@ -70,17 +70,21 @@ static void init_fudge (void) {
             fclose(f);
         }
         if(datetime_str) {
-            struct tm tm;
-            if (strptime(datetime_str, "%Y-%m-%d %H:%M:%S", &tm) != NULL) {
-                time_t config_time = mktime(&tm);
-                if(dostatic) {
-                    fudge = config_time;
-                }
-                else {
-                    time_t current_time;
-                    real_time(&current_time);
-                    fudge = current_time - config_time;
-                }
+            time_t current_time;
+            real_time(&current_time);
+            struct tm current_tm;
+            localtime_r(&current_time, &current_tm);
+
+            // Initialize tm struct to 1900-01-01 00:00:00 & tells mktime() to
+            // determine whether daylight saving time is in effect
+            struct tm tm = (struct tm){.tm_mday = 1, .tm_isdst = -1};
+            strptime(datetime_str, "%Y-%m-%d %H:%M:%S", &tm);
+            time_t config_time = mktime(&tm);
+            if(dostatic) {
+              fudge = config_time;
+            }
+            else {
+              fudge = current_time - config_time;
             }
         }
         free(datetime_str);

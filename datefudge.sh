@@ -18,8 +18,9 @@ usage()
   echo "Usage: $0 [-s|--static] [-l|--add-ld-preload lib] [-f|--from-file date_file_path] [-c|--cache-file-date ms] [date] program args..."
   echo
   echo "Run 'program' with 'args'."
-  echo "The program will believe that the current time is 'date'"
-  echo "or full date-time set in date_file_path (yyyy-MM-dd HH:mm:ss)."
+  echo "The program will believe that the current time is 'date' (when"
+  echo "date_file_path is not used) or full/partial date-time set in"
+  echo "date_file_path (yyyy-MM-dd HH:mm:ss)."
   echo
   echo "When reading date/time from a file, it is checked for updates at most"
   echo "each 100 milliseconds (this value can be overriden by param 'ms')."
