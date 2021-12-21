@@ -150,7 +150,7 @@ time_t real_gettimeofday(struct timeval *x, void *y) {
     static int (*libc_gettimeofday)(struct timeval *, void *) = NULL;
 
     if(!libc_gettimeofday)
-        libc_gettimeofday = (typeof(libc_gettimeofday))dlsym (RTLD_NEXT, "__gettimeofday");
+        libc_gettimeofday = (typeof(libc_gettimeofday))dlsym (RTLD_NEXT, "gettimeofday");
     return libc_gettimeofday(x, y);
 }
 
